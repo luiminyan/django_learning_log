@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from logs.models import Topic
+from .forms import TopicForm, EntryForm
 
 
 # Create your views here.
@@ -24,3 +25,38 @@ def topic(request, topic_id):
     entries = topic.entry_set.order_by('-date_added')
     context = {'topic': topic, 'entries': entries}
     return render(request, 'topic.html', context)
+
+
+def new_topic(request):
+    if request.method != "POST":
+        # no data delivered
+        form = TopicForm()
+    else:
+        # read data
+        form = TopicForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('logs:topics')
+
+    context = {'form': form}
+    return render(request, 'new_topic.html', context)
+
+
+def new_entry(request, topic_id):
+    # Add the entry under specific topic
+    topic = Topic.objects.get(id=topic_id)
+    if request.method != "POST":
+        form = EntryForm()
+    else:
+        form = EntryForm(request.POST)
+        if form.is_valid():
+            # Do not directly save into database
+            new_entry = form.save(commit=False)
+            new_entry.topic = topic
+            new_entry.save()
+            # redirect to topics/id after submitted
+            return redirect('logs:topic', topic_id=topic_id)
+
+    # Display a blank or invalid form.
+    context = {'topic': topic, 'form': form, 'topic_id': topic_id}
+    return render(request, 'new_entry.html', context)

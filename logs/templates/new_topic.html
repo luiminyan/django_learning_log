@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p>Add a new topic:</p>
+    <form action="{% url 'logs:new_topic' %}" method='post'>
+        {#  defend hacker attack  #}
+        {% csrf_token %}
+        {# make form content a paragraph #}
+        {{ form.as_p }}
+        <button name="submit">Add topic</button>
+    </form>
+{% endblock content %}
