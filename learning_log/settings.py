@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # register apps
     'logs',
+    'users',
 ]
 
 MIDDLEWARE = [
